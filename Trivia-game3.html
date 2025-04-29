@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trivia Wordle Blitz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    .question {
+      font-size: 22px;
+      margin: 20px 0;
+    }
+    .guess-input {
+      font-size: 20px;
+      padding: 5px;
+      width: 200px;
+      text-transform: uppercase;
+    }
+    .btn {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .feedback {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .letter {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2px;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .green { background: #4caf50; }
+    .yellow { background: #ff9800; }
+    .grey { background: #9e9e9e; }
+    .stats {
+      margin: 20px 0;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Trivia Wordle Blitz</h1>
+  <div class="question" id="question"></div>
+
+  <input type="text" id="guessInput" class="guess-input" placeholder="Your guess" maxlength="20">
+  <button class="btn" id="submitGuess">Submit Guess</button>
+
+  <div id="feedbackArea"></div>
+
+  <div class="stats">
+    Guesses Left: <span id="guessesLeft">3</span> | Streak: <span id="streak">0</span>
+  </div>
+
+  <button class="btn" id="startBtn">Start Game</button>
+
+  <script>
+    const questions = [
+      { question: "What is the capital of France?", answer: "PARIS" },
+      { question: "Which planet is known as the Red Planet?", answer: "MARS" },
+      { question: "Who wrote 'Hamlet'?", answer: "SHAKESPEARE" },
+      { question: "Which animal is known as the 'King of the Jungle'?", answer: "LION" },
+      { question: "Which ocean is the largest on Earth?", answer: "PACIFIC" },
+      { question: "Who painted the Mona Lisa?", answer: "DA VINCI" },
+      { question: "What is the fastest land animal?", answer: "CHEETAH" },
+      { question: "Which sport uses a bat, ball, and wickets?", answer: "CRICKET" },
+      { question: "In computing, what does 'CPU' stand for?", answer: "CENTRAL PROCESSING UNIT" },
+      { question: "Which country invented pizza?", answer: "ITALY" },
+      { question: "What gas do plants absorb?", answer: "CARBON DIOXIDE" }
+    ];
+
+    let currentQuestion;
+    let answer;
+    let guessesLeft;
+    let streak = 0;
+
+    const questionEl = document.getElementById('question');
+    const guessInput = document.getElementById('guessInput');
+    const submitGuess = document.getElementById('submitGuess');
+    const feedbackArea = document.getElementById('feedbackArea');
+    const guessesLeftEl = document.getElementById('guessesLeft');
+    const streakEl = document.getElementById('streak');
+    const startBtn = document.getElementById('startBtn');
+
+    function startGame() {
+      streak = 0;
+      streakEl.textContent = streak;
+      startBtn.style.display = 'none';
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      const randomIndex = Math.floor(Math.random() * questions.length);
+      currentQuestion = questions[randomIndex];
+      answer = currentQuestion.answer.toUpperCase();
+      guessesLeft = 3;
+      questionEl.textContent = currentQuestion.question;
+      feedbackArea.innerHTML = '';
+      guessesLeftEl.textContent = guessesLeft;
+      guessInput.value = '';
+      guessInput.disabled = false;
+      submitGuess.disabled = false;
+      guessInput.focus();
+    }
+
+    function checkGuess() {
+      const guess = guessInput.value.toUpperCase();
+      if (guess.length !== answer.length) {
+        alert(`Your guess must be ${answer.length} letters long!`);
+        return;
+      }
+
+      const feedbackDiv = document.createElement('div');
+      feedbackDiv.className = 'feedback';
+
+      for (let i = 0; i < guess.length; i++) {
+        const letterSpan = document.createElement('div');
+        letterSpan.className = 'letter';
+        letterSpan.textContent = guess[i];
+
+        if (guess[i] === answer[i]) {
+          letterSpan.classList.add('green');
+        } else if (answer.includes(guess[i])) {
+          letterSpan.classList.add('yellow');
+        } else {
+          letterSpan.classList.add('grey');
+        }
+
+        feedbackDiv.appendChild(letterSpan);
+      }
+
+      feedbackArea.appendChild(feedbackDiv);
+      guessesLeft--;
+      guessesLeftEl.textContent = guessesLeft;
+      guessInput.value = '';
+
+      if (guess === answer) {
+        streak++;
+        streakEl.textContent = streak;
+        setTimeout(() => {
+          alert(`🎉 Correct! Moving to next question.`);
+          nextQuestion();
+        }, 500);
+      } else if (guessesLeft === 0) {
+        setTimeout(() => {
+          alert(`💀 Out of guesses! The answer was: ${answer}.`);
+          streak = 0;
+          streakEl.textContent = streak;
+          nextQuestion();
+        }, 300);
+      }
+    }
+
+    submitGuess.addEventListener('click', checkGuess);
+    startBtn.addEventListener('click', startGame);
+    guessInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkGuess();
+    });
+
+  </script>
+
+</body>
+</html>
